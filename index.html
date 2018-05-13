@@ -24,8 +24,207 @@
 	<body>
 		<div class="reveal">
 			<div class="slides">
-				<section>Slide 1</section>
-				<section>Slide 2</section>
+				<section data-markdown data-separator-notes="^Note:">
+					<textarea data-template>
+# Suricata + ELK Stackで作るオフラインpcap分析環境
+by [@nobuyuki_ito](https://twitter.com/nobuyuki_ito)
+
+---
+
+# 自己紹介
+* 名前：[Nobuyuki Ito](https://twitter.com/nobuyuki_ito)
+* インフラエンジニア/セキュリティアナリスト見習いN年目
+
+---
+
+# 1. はじめに
+# 2. 環境準備
+# 3. 分析
+# 4. 終わりに
+
+---
+
+# 1. はじめに
+## 情報ソース
+## 分析ツール
+## 課題
+
+---
+
+## 情報ソース
+
+* pcapファイル
+* フラットファイル
+
+  * Webサーバ/sshdのアクセスログ
+  * 各種OSログ
+  * CSVファイル
+
+---
+
+## 分析ツール
+* grep, sed, awk
+* perl, python, ruby
+* Excel
+* tcpdump, Wireshark
+* Kibana
+
+---
+
+## 課題
+
+* 幾千億のログフォーマット
+* 職人芸的
+* pcap, フラットファイルの横断的な分析
+* 可視化
+
+---
+
+### Apache HTTP Server
+
+* アクセスログを集計してみる
+* 送信元IPアドレス、メソッド、レスポンスコード毎の件数
+
+```
+Aug 05 10:02:12 testweb.2ito.com httpd[704]: 192.0.2.210 - - 
+[05/Aug/2017:10:02:12 +0900] "GET /index.html HTTP/1.1" 404
+241 "-" "curl/7.53.1"
+```
+
+---
+
+### perlでやってみる
+
+```
+journalctl -al --unit=httpd --since yesterday | \
+perl -F'\s+' -lnae '
+$F[10] =~ s/^.//;
+$F[5] =~ /^(\d{1,3}\.){3}\d{1,3}$/ and 
+$access{$F[5]}->{$F[10]}->{$F[13]}++;
+}
+foreach my $src ( keys %access ) {
+ foreach my $method ( sort keys %{$access{$src}} ) {
+  foreach ( sort keys %{$access{$src}->{$method}} ) {
+   print "$src\t$method\t$_\t$access{$src}->{$method}->{$_}";
+  }
+ }
+}
+{'|more
+```
+
+```
+192.0.2.210    GET     200     71
+192.0.2.10     GET     404     1
+```
+
+---
+
+### 確かに出来る
+* スクリプトの集計は楽しい！
+
+  * シェル芸
+  * ワンライナー
+
+* プログラミングの勉強にもなる（こともある）
+
+---
+
+### みんな大好きExcel
+
+* CSV/TSVへの変換が必要
+* ピボットテーブル + グラフ
+* 大量のデータには対応できない
+
+---
+
+# 集計は本質ではない
+
+---
+
+# その先の分析に時間を使おう！
+
+---
+
+# 2. 環境準備
+## OS
+## Suricata
+## ELK Stack
+
+---
+
+## OS
+
+* お好みのLinuxディストリビューションをインストールしておく
+* 今回はFedora 28を利用します
+* CentOS 7.x, Ubuntu他好きなようにどうぞ
+* Xは不要
+
+---
+
+### まさかインストーラを一つずつ進めてインストールしようとしてないよね？
+
+---
+
+### Fedora/CentOS インストールtips
+
+* kickstartインストールにPXE bootは必須ではない
+* 仮想マシンであればISOイメージをboot
+* CDROMからのブート時でも引数に一手間加えるだけで使える
+* Installation Guide の [Boot Options](https://docs.fedoraproject.org/f28/install-guide/advanced/Boot_Options.html) をありがたく拝見
+
+---
+
+```
+ip=192.0.2.210::192.0.2.254:255.255.255.0:example:eth0:none \
+inst.ks=http://www.example.com/test-ks.cfg
+```
+
+* ip: IPアドレスを直接指定する
+* inst.ks: Kickstart 設定ファイルを読み込む
+* 適当なサーバにApache or nginxを突っ込んでおく
+* [GitHub](https://qiita.com/budougumi0617/items/221bb946d1c90d6769e9) にだって置けるし、 [Amazon S3](https://docs.aws.amazon.com/AmazonS3/latest/dev/WebsiteHosting.html) に置いたっていい
+
+---
+
+## Suricata
+
+* version 4.0.0 以上をインストール
+* 2018年5月14日(月)時点の最新版は [4.0.4](https://suricata-ids.org/download/)
+* Centos 7.x では[epel](https://fedoraproject.org/wiki/EPEL)の追加が必要
+
+```
+dnf install suricata
+```
+
+---
+
+## ELK Stack
+
+* [Logstash](https://www.elastic.co/downloads/logstash)
+* [Elasticsearch](https://www.elastic.co/downloads/elasticsearch)
+* [Kibana](https://www.elastic.co/downloads/kibana)
+* 2018年5月14日(月)時点の最新版は6.2.4
+* Internetにつながる環境であれば [レポジトリを追加](https://www.elastic.co/guide/en/elasticsearch/reference/current/rpm.html) した方が速い
+
+```
+dnf install java-1.8.0-openjdk-headless logstash \
+elasticsearch kibana
+```
+
+---
+
+# 3. 分析
+
+---
+
+# 4. 終わりに
+
+---
+
+ご清聴ありがとうございました
+
+					</textarea>
+				</section>
 			</div>
 		</div>
 
