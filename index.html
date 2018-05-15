@@ -175,10 +175,12 @@ foreach my $src ( keys %access ) {
 ---
 
 ```
+inst.repo=cdrom \
 ip=192.0.2.210::192.0.2.254:255.255.255.0:example:eth0:none \
 inst.ks=http://www.example.com/test-ks.cfg
 ```
 
+* inst.repo: cdromをインストール媒体に指定
 * ip: IPアドレスを直接指定する
 * inst.ks: Kickstart 設定ファイルを読み込む
 * 適当なサーバにApache or nginxを突っ込んでおく
@@ -195,6 +197,41 @@ inst.ks=http://www.example.com/test-ks.cfg
 ```
 dnf install suricata
 ```
+
+---
+
+### Snort rule ダウンロード
+
+* ダウンロードには [ユーザ登録](https://www.snort.org/users/sign_up) が必要
+
+  * Emailだけでよい
+
+* [ダウンロードページ](https://www.snort.org/downloads)
+
+  * Community rules: [community-rules.tar.gz](https://www.snort.org/downloads/community/community-rules.tar.gz)
+  * Registered rules: [snortrules-snapshot-29111.tar.gz](https://www.snort.org/downloads/registered/snortrules-snapshot-29111.tar.gz)
+
+---
+
+### EmergingThreats rule ダウンロード
+
+* ユーザ登録不要
+* [OPEN Download Instructions](https://rules.emergingthreats.net/OPEN_download_instructions.html)
+
+  * Suricata 4.0向けルールを利用
+  * [emerging.rules.tar.gz](https://rules.emergingthreats.net/open-nogpl/suricata-4.0/emerging.rules.tar.gz)
+
+
+
+### Suricata 初期設定
+
+* /etc/suricata/suricata.yaml を修正
+
+  * suricata/suricata.yaml.patch を当てる
+
+* ルールのインストール
+
+  * suricata/applyRules.sh を実行
 
 ---
 
