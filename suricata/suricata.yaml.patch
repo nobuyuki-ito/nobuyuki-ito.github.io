@@ -1,0 +1,344 @@
+--- ./backup/etc/suricata/suricata.yaml	2018-02-15 22:36:22.000000000 +0900
++++ /etc/suricata/suricata.yaml	2018-05-15 08:33:11.420916516 +0900
+@@ -51,26 +51,58 @@
+ 
+ default-rule-path: /etc/suricata/rules
+ rule-files:
++ - app-layer-events.rules
++ - decoder-events.rules
++ - dnp3-events.rules
++ - dns-events.rules
++ - files.rules
++ - http-events.rules
++ - modbus-events.rules
++ - nfs-events.rules
++ - ntp-events.rules
++ - smtp-events.rules
++ - stream-events.rules
++ - tls-events.rules
++ - community.rules
++ - app-detect.rules
++ - attack-responses.rules
++ - backdoor.rules
++ - bad-traffic.rules
++ - blacklist.rules
++ - botcc.portgrouped.rules
+  - botcc.rules
+- # - botcc.portgrouped.rules
++ - botnet-cnc.rules
++ - browser-chrome.rules
++ - browser-firefox.rules
++ - browser-ie.rules
++ - browser-other.rules
++ - browser-plugins.rules
++ - browser-webkit.rules
++ - chat.rules
+  - ciarmy.rules
+  - compromised.rules
++ - content-replace.rules
++ - ddos.rules
++ - deleted.rules
++ - dns.rules
++ - dos.rules
+  - drop.rules
+  - dshield.rules
+-# - emerging-activex.rules
++ - emerging-activex.rules
+  - emerging-attack_response.rules
+  - emerging-chat.rules
+  - emerging-current_events.rules
++ - emerging-deleted.rules
+  - emerging-dns.rules
+  - emerging-dos.rules
+  - emerging-exploit.rules
+  - emerging-ftp.rules
+-# - emerging-games.rules
+-# - emerging-icmp_info.rules
+-# - emerging-icmp.rules
++ - emerging-games.rules
++ - emerging-icmp_info.rules
++ - emerging-icmp.rules
+  - emerging-imap.rules
+-# - emerging-inappropriate.rules
+-# - emerging-info.rules
++ - emerging-inappropriate.rules
++ - emerging-info.rules
+  - emerging-malware.rules
+  - emerging-misc.rules
+  - emerging-mobile_malware.rules
+@@ -79,10 +111,9 @@
+  - emerging-policy.rules
+  - emerging-pop3.rules
+  - emerging-rpc.rules
+-# - emerging-scada.rules
+-# - emerging-scada_special.rules
++ - emerging-scada.rules
+  - emerging-scan.rules
+-# - emerging-shellcode.rules
++ - emerging-shellcode.rules
+  - emerging-smtp.rules
+  - emerging-snmp.rules
+  - emerging-sql.rules
+@@ -93,19 +124,111 @@
+  - emerging-voip.rules
+  - emerging-web_client.rules
+  - emerging-web_server.rules
+-# - emerging-web_specific_apps.rules
++ - emerging-web_specific_apps.rules
+  - emerging-worm.rules
++ - experimental.rules
++ - exploit-kit.rules
++ - exploit.rules
++ - file-executable.rules
++ - file-flash.rules
++ - file-identify.rules
++ - file-image.rules
++ - file-java.rules
++ - file-multimedia.rules
++ - file-office.rules
++ - file-other.rules
++ - file-pdf.rules
++ - finger.rules
++ - ftp.rules
++ - icmp-info.rules
++ - icmp.rules
++ - imap.rules
++ - indicator-compromise.rules
++ - indicator-obfuscation.rules
++ - indicator-scan.rules
++ - indicator-shellcode.rules
++ - info.rules
++ - local.rules
++ - malware-backdoor.rules
++ - malware-cnc.rules
++ - malware-other.rules
++ - malware-tools.rules
++ - misc.rules
++ - multimedia.rules
++ - mysql.rules
++ - netbios.rules
++ - nntp.rules
++ - oracle.rules
++ - os-linux.rules
++ - os-mobile.rules
++ - os-other.rules
++ - os-solaris.rules
++ - os-windows.rules
++ - other-ids.rules
++ - p2p.rules
++ - phishing-spam.rules
++ - policy-multimedia.rules
++ - policy-other.rules
++ - policy.rules
++ - policy-social.rules
++ - policy-spam.rules
++ - pop2.rules
++ - pop3.rules
++ - protocol-dns.rules
++ - protocol-finger.rules
++ - protocol-ftp.rules
++ - protocol-icmp.rules
++ - protocol-imap.rules
++ - protocol-nntp.rules
++ - protocol-other.rules
++ - protocol-pop.rules
++ - protocol-rpc.rules
++ - protocol-scada.rules
++ - protocol-services.rules
++ - protocol-snmp.rules
++ - protocol-telnet.rules
++ - protocol-tftp.rules
++ - protocol-voip.rules
++ - pua-adware.rules
++ - pua-other.rules
++ - pua-p2p.rules
++ - pua-toolbars.rules
++ - rbn-malvertisers.rules
++ - rbn.rules
++ - rpc.rules
++ - rservices.rules
++ - scada.rules
++ - scan.rules
++ - server-apache.rules
++ - server-iis.rules
++ - server-mail.rules
++ - server-mssql.rules
++ - server-mysql.rules
++ - server-oracle.rules
++ - server-other.rules
++ - server-samba.rules
++ - server-webapp.rules
++ - shellcode.rules
++ - smtp.rules
++ - snmp.rules
++ - specific-threats.rules
++ - spyware-put.rules
++ - sql.rules
++ - telnet.rules
++ - tftp.rules
+  - tor.rules
+-# - decoder-events.rules # available in suricata sources under rules dir
+-# - stream-events.rules  # available in suricata sources under rules dir
+- - http-events.rules    # available in suricata sources under rules dir
+- - smtp-events.rules    # available in suricata sources under rules dir
+- - dns-events.rules     # available in suricata sources under rules dir
+- - tls-events.rules     # available in suricata sources under rules dir
+-# - modbus-events.rules  # available in suricata sources under rules dir
+-# - app-layer-events.rules  # available in suricata sources under rules dir
+-# - dnp3-events.rules       # available in suricata sources under rules dir
+-# - ntp-events.rules       # available in suricata sources under rules dir
++ - virus.rules
++ - voip.rules
++ - web-activex.rules
++ - web-attacks.rules
++ - web-cgi.rules
++ - web-client.rules
++ - web-coldfusion.rules
++ - web-frontpage.rules
++ - web-iis.rules
++ - web-misc.rules
++ - web-php.rules
++ - x11.rules
+ 
+ classification-file: /etc/suricata/classification.config
+ reference-config-file: /etc/suricata/reference.config
+@@ -123,7 +246,7 @@
+ 
+ # global stats configuration
+ stats:
+-  enabled: yes
++  enabled: no
+   # The interval field (in seconds) controls at what interval
+   # the loggers are invoked.
+   interval: 8
+@@ -132,7 +255,7 @@
+ outputs:
+   # a line based alerts log similar to Snort's fast.log
+   - fast:
+-      enabled: yes
++      enabled: no
+       filename: fast.log
+       append: yes
+       #filetype: regular # 'regular', 'unix_stream' or 'unix_dgram'
+@@ -166,11 +289,11 @@
+       types:
+         - alert:
+             # payload: yes             # enable dumping payload in Base64
+-            # payload-buffer-size: 4kb # max size of payload buffer to output in eve-log
+-            # payload-printable: yes   # enable dumping payload in printable (lossy) format
++            payload-buffer-size: 4kb # max size of payload buffer to output in eve-log
++            payload-printable: yes   # enable dumping payload in printable (lossy) format
+             # packet: yes              # enable dumping of packet (without stream segments)
+             # http-body: yes           # enable dumping of http body in Base64
+-            # http-body-printable: yes # enable dumping of http body in printable format
++            http-body-printable: yes # enable dumping of http body in printable format
+             metadata: yes              # add L7/applayer fields, flowbit and other vars to the alert
+ 
+             # Enable the logging of tagged packets for rules using the
+@@ -183,13 +306,13 @@
+             # helpful when reviewing alerts for traffic that is being reverse
+             # or forward proxied.
+             xff:
+-              enabled: no
++              enabled: yes
+               # Two operation modes are available, "extra-data" and "overwrite".
+               mode: extra-data
+               # Two proxy deployments are supported, "reverse" and "forward". In
+               # a "reverse" deployment the IP address used is the last one, in a
+               # "forward" deployment the first IP address is used.
+-              deployment: reverse
++              deployment: forward
+               # Header name where the actual IP address will be reported, if more
+               # than one IP address is present, the last IP address will be the
+               # one taken into consideration.
+@@ -219,13 +342,13 @@
+             force-magic: no   # force logging magic on all logged files
+             # force logging of checksums, available hash functions are md5,
+             # sha1 and sha256
+-            #force-hash: [md5]
++            force-hash: [sha256]
+         #- drop:
+         #    alerts: yes      # log alerts that caused drops
+         #    flows: all       # start or all: 'start' logs only a single drop
+         #                     # per flow direction. All logs each dropped pkt.
+         - smtp:
+-            #extended: yes # enable this for extended logging information
++            extended: yes # enable this for extended logging information
+             # this includes: bcc, message-id, subject, x_mailer, user-agent
+             # custom fields logging from the list:
+             #  reply-to, bcc, message-id, subject, x-mailer, user-agent, received,
+@@ -235,13 +358,13 @@
+             # output md5 of fields: body, subject
+             # for the body you need to set app-layer.protocols.smtp.mime.body-md5
+             # to yes
+-            #md5: [body, subject]
++            md5: [body, subject]
+ 
+         #- dnp3
+         #- nfs
+         - ssh
+         - stats:
+-            totals: yes       # stats for all threads merged together
++            totals: no       # stats for all threads merged together
+             threads: no       # per thread stats
+             deltas: no        # include delta values
+         # bi-directional flows
+@@ -397,7 +520,7 @@
+ 
+   # Stats.log contains data from various counters of the suricata engine.
+   - stats:
+-      enabled: yes
++      enabled: no
+       filename: stats.log
+       append: yes       # append to file (yes) or overwrite it (no)
+       totals: yes       # stats for all threads merged together
+@@ -432,16 +555,16 @@
+   # - http request / response body sizes. Again set to 0 for optimal results.
+   # - rules that contain the "filestore" keyword.
+   - file-store:
+-      enabled: no       # set to yes to enable
++      enabled: yes       # set to yes to enable
+       log-dir: files    # directory to store the files
+       force-magic: no   # force logging magic on all stored files
+       # force logging of checksums, available hash functions are md5,
+       # sha1 and sha256
+-      #force-hash: [md5]
+-      force-filestore: no # force storing of all files
++      force-hash: [sha256]
++      force-filestore: yes # force storing of all files
+       # override global stream-depth for sessions in which we want to
+       # perform file extraction. Set to 0 for unlimited.
+-      #stream-depth: 0
++      stream-depth: 0
+       #waldo: file.waldo # waldo file to store the file_id across runs
+       # uncomment to disable meta file writing
+       #write-meta: no
+@@ -724,7 +847,7 @@
+         extract-urls: yes
+         # Set to yes to compute the md5 of the mail body. You will then
+         # be able to journalize it.
+-        body-md5: no
++        body-md5: yes
+       # Configure inspected-tracker for file_data keyword
+       inspected-tracker:
+         content-limit: 100000
+@@ -813,8 +936,8 @@
+ 
+            # Can be specified in kb, mb, gb.  Just a number indicates
+            # it's in bytes.
+-           request-body-limit: 100kb
+-           response-body-limit: 100kb
++           request-body-limit: 4096kb
++           response-body-limit: 10mb
+ 
+            # inspection limits
+            request-body-minimal-inspect-size: 32kb
+@@ -956,7 +1079,7 @@
+ # If set to auto, the variable is internally switch to 'router' in IPS mode
+ # and 'sniffer-only' in IDS mode.
+ # This feature is currently only used by the reject* keywords.
+-host-mode: auto
++host-mode: sniffer-only
+ 
+ # Number of packets preallocated per thread. The default is 1024. A higher number 
+ # will make sure each CPU will be more easily kept busy, but may negatively 
