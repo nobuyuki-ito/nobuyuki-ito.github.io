@@ -1,0 +1,282 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>QRadar Community Editionをインストールしてみた</title>
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/beige.css">
+
+		<!-- Theme used for syntax highlighting of code -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+				<section data-markdown data-separator="\n---\n$" data-separator-vertical="\n--\n$" data-separator-notes="^Note:">
+					<textarea data-template>
+# QRadar Community Editionをインストールしてみた
+by [@nobuyuki_ito](https://twitter.com/nobuyuki_ito)
+
+---
+
+# 自己紹介
+* 名前：[Nobuyuki Ito](https://twitter.com/nobuyuki_ito)
+* インフラエンジニア/セキュリティアナリスト見習いN年目
+
+---
+
+# 1. はじめに
+# 2. 環境準備
+# 3. 動作確認
+# 4. 終わりに
+
+---
+
+# 1. はじめに
+## QRadarとは
+## Community Editionとは
+## 試してみようじゃないか
+
+---
+
+## QRadarとは
+
+* IBM社が開発している商用SIEMの一つ
+* 2017年11月8日からCommunity Edition提供開始
+
+--
+
+## Community Editionとは
+* 無料
+* 以下の通り機能制約があり、あくまで評価用途
+* イベント量制限（50EPS）
+* オフラインでのログ取り込み不可
+
+  * syslog等何かしらリアルタイムで取り込める形にする必要あり
+  * SplunkみたいにとりあえずCSVで食わせて...はだめ
+
+--
+
+* X-Force連携（Threat Intelligence）はなし
+* Vulnerability Management/Forensic（スキャナー、フルパケットキャプチャー的なもの）もなし
+* HA構成は組めないので、本番の検証用インフラとしては利用できない
+* 商用版への切り替え不可
+* （将来的に新バージョンが出たとしても）アップグレード不可
+
+  * まだ新バージョンが出てないのでなんとも言えない
+
+--
+
+## 試してみようじゃないか
+
+* とはいえ食わず嫌いなのも良くないのでとりあえず使ってみようと言う話です
+
+---
+
+# 2. 環境準備
+## 導入手順
+## ダウンロード
+## OSインストール
+## QRadarインストール
+
+---
+
+## 導入手順
+
+* [公式ドキュメントPDF](https://developer.ibm.com/qradar/wp-content/uploads/sites/89/2017/11/b_qradar_community_edition.pdf) はあっさり目
+* [日本語解説PPT](https://public.dhe.ibm.com/common/ssi/ecm/64/ja/64013164jpja/security-proposal-support-material-64013164jpja-20180206.pptx) もあり
+
+--
+
+## ダウンロード
+
+* [公式サイト](https://developer.ibm.com/qradar/ce/) の リンクからダウンロード
+* ダウンロード時にIBM accountの登録が必要
+
+  * 会社名、電話番号も必須項目
+  * 即日ダウンロードは出来なかったので、何らかの審査をしているのかは不明
+  * 単にサイトのメンテナンスに当たっただけかも
+
+---
+
+## OSインストール
+
+* CentOS 7.3固定
+* リリース時にEverythingのISOイメージをダウンロードしていなかった人は [vault.centos.org](http://vault.centos.org/7.3.1611/)をありがたく利用
+* Minimalインストール推奨だが、その後パッケージの依存関係で数GB規模でダウンロードが発生するので注意
+* 自宅にレポジトリを同期している人はそれを使った方が速い
+
+--
+
+* kickstartでさらっと入れる
+* パーティション構成
+
+  * /boot: 256MB
+  * /boot/efi: 200MB
+  * swap: 8GB
+  * /: 残り全部
+
+--
+
+* インストール後の起動時でメモリ約3.5GB、/ がOS込みで約15GB程度になる
+
+  * メモリは最小4GBだが、なぜか警告が出るので多めに8GBとかにしておくと良い
+  * ディスクはインストール時に空き容量チェックが走るので多めに確保しておく
+
+--
+
+### インストール前準備
+
+* インストール途中でrootパスワードは強制変更されるので、いったんそのまま
+* centos-gluster38 という途中でrpmインストールされるレポジトリが古いバージョン固定でエラーになる
+
+  * [/etc/yum.repos.d/CentOS-Gluster-3.8.repo](https://nobuyuki-ito.github.io/qradar/CentOS-Gluster-3.8.repo) をあらかじめ作成しておく
+  * rpmでCONFIGマークされているファイルは上書きされないため
+
+--
+
+### レポジトリ同期している人へ
+
+* [vault.centos.org](http://vault.centos.org/7.3.1611/storage/x86_64/gluster-3.8/) から最新バージョンのRPMのみをダウンロード
+* createrepoすると楽（数十MB程度）
+* CentOS 7.5ではGluster 3.10からしかない
+* baseurlを PREFIX/centos/7.3.1611/storage/x86_64/gluster-3.8/ に変更
+* インストール後にローカルレポジトリ参照にするためのスクリプト
+
+```
+perl -i -lnpe '/^mirrorlist=/ and s/^/#/; /^#baseurl=/ and s/^#// and s#mirror\.centos\.org#192.0.2.210/Linux# and s/\$releasever/7.3.1611/; /^\[extras\]/ and $flag = 1; $flag and /^gpgcheck=/ and s/^/enabled=0\n/; /^\[centosplus\]/ and $flag = 0' /etc/yum.repos.d/CentOS-Base.repo
+```
+
+* `yum update` してローカルレポジトリにつながることを確認
+
+---
+
+## QRadarインストール
+
+* EULA同意後インストールを途中で止めると次回からエラーで起動しなくなるので、ガイドの通りスナップショットをとっておいた方が良い
+
+  * 単にバージョンファイルを消してもだめだった
+  * もう少し解析すればよさげだが、今回はそこまで時間もないので素直にとっておく
+
+* マシンスペックにもよるが、正味1時間かかる
+* DB周りの処理等、CPU intensiveな感じなので、余力を持っておく
+
+--
+
+* インストール中の処理はログファイルに記録されている
+* /var/log/setup-7.3.0.20171013140512/*.log
+* 以下のようなコマンドでインストールに必要なrpmファイルを洗い出すことが可能
+
+```
+perl -lne '/^Dependencies\s+Resolved/ and $flag = 1; if ( $flag and /^\s+[\w-]+\s+\w+\s+[\w-\.]+\s+\w+/ ) { /^\s+Package/ and next; my @F = split; print "$F[3] $F[0]"; } /^Install\s+\d+\s+Package/ and $flag = 0' ./qradar_setup.log
+```
+
+  * local のものはインストーラのISOイメージ中にあるファイルなので無視
+	* baseとupdatesだけ見ておけば良い
+
+--
+
+### NIC構成
+
+* NICが二つ以上ある場合、管理用のGUIで接続する方をeth0等最初のインタフェースにしておかないとエラーになる
+```
+Failed to modify rx and tx value for eth1
+```
+* [IV64741](http://www-01.ibm.com/support/docview.wss?uid=swg1IV64741) のバグが微妙に修正されていない可能性あり
+* 閉じたネットワークでもゲートウェイ、DNSの設定は必須（省略不可）
+* 2つ目以降のインタフェースも全てstatic構成（DHCPは利用しない）にしておかないと設定が消えるので注意
+
+---
+
+# 3. 動作確認
+## 動作確認
+
+---
+
+## 動作確認
+
+* Log Source登録
+
+  * [DSM Configuration Guide](http://www-01.ibm.com/support/docview.wss?uid=swg27049537)
+
+* いったんrebootしておく
+
+  * [Administration Guide](http://www-01.ibm.com/support/docview.wss?uid=swg27049537)
+	* アプライアンスなので `systemctl reboot` とかしないこと
+
+--
+
+* テストログを送ってみる
+
+```
+while [[ 1 -eq 1 ]]; do logger --rfc3164 -d -n 172.24.1.7 -P 514 'su[4017]: pam_unix(su-l:session): session opened for user root by test(uid=500)'; sleep 10; done
+```
+* Privilege Escalation Succeededとか出てくればうまー
+* Unknown Generic Log Event だとしょんぼりするね
+
+---
+
+# 4. 終わりに
+
+--
+
+* 余力がないのでひとまずここまで
+* コンセプト理解が追いついていないのでもう少し勉強が必要
+
+--
+
+## 参考文献
+
+* [IBM Security QRadar Version 7 Release 3 Community Edition](https://developer.ibm.com/qradar/wp-content/uploads/sites/89/2017/11/b_qradar_community_edition.pdf)
+* [QRadar Community Edition] インストール導入ガイド](https://public.dhe.ibm.com/common/ssi/ecm/64/ja/64013164jpja/security-proposal-support-material-64013164jpja-20180206.pptx) 
+* [IV64741: QRADAR SOFTWARE ONLY INSTALLATION ON CUSTOMER SUPPLIED HARDWARE WITH XX28 SPECIFICATIONS MAY FAIL DURING SETUP](http://www-01.ibm.com/support/docview.wss?uid=swg1IV64741)
+* [DSM Configuration Guide](http://www-01.ibm.com/support/docview.wss?uid=swg27049537)
+* [Administration Guide](http://www-01.ibm.com/support/docview.wss?uid=swg27049537)
+* [ついに出た！ QRadar Community Edition](https://ameblo.jp/wp-admin/entry-12326807232.html)
+
+
+---
+
+ご清聴ありがとうございました
+
+					</textarea>
+				</section>
+			</div>
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+			// More info about config & dependencies:
+			// - https://github.com/hakimel/reveal.js#configuration
+			// - https://github.com/hakimel/reveal.js#dependencies
+			Reveal.initialize({
+				dependencies: [
+					{ src: 'plugin/markdown/marked.js' },
+					{ src: 'plugin/markdown/markdown.js' },
+					{ src: 'plugin/notes/notes.js', async: true },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+				],
+			//	width: 1920,
+	//height: 1080
+			});
+			Reveal.configure({
+				slideNumber: 'c/t',
+				showSlideNumber: 'all'
+			});
+		</script>
+	</body>
+</html>
